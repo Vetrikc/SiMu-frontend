@@ -1,0 +1,8 @@
+org\simu\client\TestController.class
+org\simu\client\aspect\MusicAspect.class
+org\simu\client\ClientApplication.class
+org\simu\client\config\AppConfig.class
+org\simu\client\controller\MusicViewController$1.class
+org\simu\client\entity\Music.class
+org\simu\client\controller\MusicViewController.class
+org\simu\client\controller\MusicViewController$2.class

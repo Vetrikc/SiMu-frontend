@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Music List</title>
+    <style>
+        .header-buttons {
+            margin-bottom: 20px;
+        }
+        .header-buttons a {
+            display: inline-block;
+            padding: 8px 16px;
+            margin-right: 10px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .header-buttons a:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Шапка с кнопками (используем Thymeleaf) -->
+<div class="header-buttons">
+    <a th:href="@{/user}">User</a>          <!-- /user -->
+    <a th:href="@{/signin}">SignIn</a>     <!-- /signin -->
+    <a th:href="@{/signup}">SignUp</a>     <!-- /signup -->
+</div>
+
+<!-- Таблица с музыкой -->
+<table>
+    <tr th:each="music : ${listMusics}">
+        <td th:text="${music.name}"></td>
+        <td th:text="${music.artist}"></td>
+        <td>
+            <audio controls>
+                <source th:src="${music.url}" type="audio/mpeg">
+                Ваш браузер не поддерживает аудио.
+            </audio>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

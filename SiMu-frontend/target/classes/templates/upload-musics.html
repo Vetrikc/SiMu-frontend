@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload Music</title>
+</head>
+<body>
+<!-- Кнопка выхода -->
+<input type="button" value="exit"
+       onclick="window.location.href = '/musics'">
+<br>
+
+<!-- Форма с Thymeleaf -->
+<form th:action="@{/upload}" method="post" th:object="${music}" enctype="multipart/form-data">
+    <label for="name">Name:</label>
+    <input type="text" id="name" th:field="*{name}" />
+    <br><br>
+
+    <label for="artist">Artist:</label>
+    <input type="text" id="artist" th:field="*{artist}" />
+    <br><br>
+
+    <h2>Загрузить файл</h2>
+    <div th:if="${message != null}">
+        <p style="color: green;" th:text="${message}"></p>
+    </div>
+    <input type="file" name="file"/>
+    <br><br>
+
+    <input type="submit" value="OK">
+</form>
+</body>
+</html>
