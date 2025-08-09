@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой Музыкальный Сервис</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Добавлен шрифт Poppins для более закругленного и плавного вида -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
+    <!-- Исправлена ошибка в атрибуте integrity для Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+
+        .sidebar {
+            background-color: #0d0d0d;
+            width: 250px;
+            min-width: 250px;
+        }
+
+        .main-content {
+            /* Возвращен цвет фона к предыдущему значению */
+            background-color: #1a1a1a;
+        }
+
+        .card {
+            background-color: #2a2a2a;
+            cursor: pointer; /* Добавляем курсор-указатель */
+            transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out; /* Плавный переход для hover и transform */
+            padding: 1rem; /* Уменьшен padding для уменьшения высоты */
+        }
+
+        .card:hover {
+            background-color: #3a3a3a; /* Изменение цвета при наведении */
+            transform: scale(1.02); /* Увеличение на 2% при наведении */
+        }
+
+        .player-bar {
+            background-color: #2a2a2a;
+            height: 90px; /* Возвращена высота к 90px */
+            display: flex;
+            align-items: center;
+            padding: 0 1.5rem; /* Отступы по бокам */
+            position: fixed; /* Закрепляем внизу */
+            bottom: 0;
+            /* Смещаем влево на ширину сайдбара */
+            left: 250px;
+            /* Уменьшаем ширину на ширину сайдбара */
+            width: calc(100% - 250px);
+            z-index: 1000; /* Чтобы был поверх другого контента */
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background-color: #4a4a4a;
+            border-radius: 9999px;
+            flex-grow: 1;
+            margin: 0 1rem;
+            cursor: pointer; /* Для интерактивности */
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #ffcc00; /* Yellow accent */
+            border-radius: 9999px;
+        }
+
+        .active-link {
+            color: #ffcc00;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(180deg, rgba(50, 0, 100, 0.5) 0%, rgba(26, 26, 26, 0) 100%);
+        }
+
+        /* Стили для текста "SiMu" */
+        .simu-text {
+            font-family: 'Poppins', sans-serif; /* Используем Poppins для закругленного шрифта */
+            font-weight: 600; /* Полужирный */
+            color: #ffffff; /* Белый цвет */
+            font-size: 1.5rem; /* Размер шрифта, можно настроить */
+            line-height: 1; /* Убираем лишнее пространство по вертикали */
+        }
+
+        /* Стили для ползунка громкости */
+        .volume-slider-container {
+            width: 80px; /* Фиксированная ширина для ползунка громкости */
+            background-color: #4a4a4a;
+            border-radius: 9999px;
+            height: 4px; /* Высота как у полосы прогресса */
+            cursor: pointer;
+        }
+
+        .volume-fill {
+            background-color: #ffcc00; /* Цвет заполнения */
+            height: 100%;
+            border-radius: 9999px;
+        }
+
+        /* Стили для модального окна загрузки */
+        .upload-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000; /* Выше, чем плеер */
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0.3s, opacity 0.3s;
+        }
+
+        .upload-modal-overlay.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .upload-modal-content {
+            background-color: #2a2a2a;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+            width: 90%;
+            max-width: 500px;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease-out;
+            position: relative;
+        }
+
+        .upload-modal-overlay.show .upload-modal-content {
+            transform: translateY(0);
+        }
+
+        .upload-modal-content input[type="text"],
+        .upload-modal-content input[type="file"] {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            background-color: #1a1a1a;
+            border: 1px solid #4a4a4a;
+            border-radius: 8px;
+            color: #e0e0e0;
+        }
+
+        .upload-modal-content input[type="file"]::file-selector-button {
+            background-color: #ffcc00;
+            color: #1a1a1a;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            margin-right: 1rem;
+        }
+
+        .upload-modal-content input[type="file"]::file-selector-button:hover {
+            background-color: #e6b800;
+        }
+
+        .upload-modal-content label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #e0e0e0;
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+<!-- Sidebar -->
+<aside class="sidebar flex flex-col p-6 rounded-r-lg shadow-lg">
+    <div class="flex items-center mb-10">
+        <!-- Удалена иконка "M" -->
+        <span class="simu-text">SiMu</span>
+    </div>
+    <nav class="flex-grow">
+        <ul>
+            <li class="mb-6">
+                <a href="#" id="search-link"
+                   class="flex items-center text-gray-400 hover:text-white transition-colors duration-200">
+                    <i class="fas fa-search mr-4 text-lg"></i>
+                    <span>Поиск</span>
+                </a>
+            </li>
+            <li class="mb-6">
+                <!-- Изменены классы, чтобы кнопка "Главная" выглядела как кнопка "Поиск" -->
+                <a href="#" id="home-link"
+                   class="flex items-center text-gray-400 hover:text-white transition-colors duration-200">
+                    <i class="fas fa-home mr-4 text-lg"></i>
+                    <span>Главная</span>
+                </a>
+            </li>
+            <!-- Удалены пункты "Подкасты и книги" и "Детям" -->
+            <li class="mb-6">
+                <a href="#" id="collection-link"
+                   class="flex items-center text-gray-400 hover:text-white transition-colors duration-200">
+                    <i class="fas fa-heart mr-4 text-lg"></i>
+                    <span>Коллекция</span>
+                </a>
+            </li>
+            <li class="mb-6">
+                <a href="#" id="upload-link"
+                   class="flex items-center text-gray-400 hover:text-white transition-colors duration-200">
+                    <i class="fas fa-upload mr-4 text-lg"></i>
+                    <span>Загрузить</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <div class="mt-auto flex items-center p-3 rounded-lg bg-gray-800">
+        <!-- Заменено изображение на иконку Font Awesome -->
+        <i class="fas fa-user-circle text-white text-4xl mr-3"></i>
+        <div>
+            <!-- Изменено на "UserName" -->
+            <p class="text-sm font-medium">UserName</p>
+            <!-- Удален текст "Плюс" -->
+        </div>
+    </div>
+</aside>
+
+<!-- Main Content Area -->
+<main id="main-content-area" class="main-content flex-grow flex flex-col p-8 overflow-y-auto pb-24">
+    <!-- Добавлен padding-bottom для проигрывателя -->
+    <!-- Header/Top Bar - Удалены кнопки и надпись "Самые точные рекомендации" -->
+    <header class="flex justify-end items-center mb-8">
+        <!-- Удален div с надписью "Самые точные рекомендации" -->
+        <!-- Удален div с кнопками: колокольчик, шестеренка, крестик, минус, расширить -->
+    </header>
+
+    <!-- My Wave Section - Увеличена высота в 2 раза -->
+    <section
+            class="relative w-full h-[512px] rounded-xl overflow-hidden mb-8 gradient-bg flex items-center justify-center">
+        <!-- Удалена надпись "Фоновое изображение" -->
+        <img src="https://placehold.co/800x300/330066/FFFFFF?text=Фоновое+изображение" alt="Моя волна фон"
+             class="absolute inset-0 w-full h-full object-cover opacity-30">
+        <div class="relative z-10 text-center">
+            <!-- Удалена надпись "Моя волна" -->
+            <!-- Удален div с кнопками: перемешивание, Работать, крестик -->
+        </div>
+    </section>
+
+    <!-- Content Sections -->
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <!-- For You - Сделано кликабельным -->
+        <div id="for-you-card" class="card p-6 rounded-xl shadow-lg">
+            <h3 class="text-xl font-semibold mb-4 text-white">Для вас</h3>
+            <div class="flex items-center space-x-4">
+                <img src="https://placehold.co/60x60/555555/FFFFFF?text=А" alt="Обложка альбома" class="rounded-lg">
+                <div>
+                    <p class="font-medium text-white">ANTARCTIC</p>
+                    <p class="text-sm text-gray-400">Lestmor</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trends - Сделано кликабельным -->
+        <div id="trends-card" class="card p-6 rounded-xl shadow-lg">
+            <h3 class="text-xl font-semibold mb-4 text-white">Тренды</h3>
+            <div class="flex items-center space-x-4">
+                <img src="https://placehold.co/60x60/555555/FFFFFF?text=Т" alt="Обложка альбома" class="rounded-lg">
+                <div>
+                    <p class="font-medium text-white">Майби Бэйби</p>
+                    <p class="text-sm text-gray-400">T-Fest</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- I Like It - Сделано кликабельным -->
+        <div id="liked-card" class="card p-6 rounded-xl shadow-lg col-span-1 md:col-span-2 lg:col-span-1">
+            <h3 class="text-xl font-semibold mb-4 text-white flex items-center justify-between">
+                Мне нравится
+                <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+            </h3>
+            <p class="text-sm text-gray-400">341 трек</p>
+        </div>
+    </section>
+
+    <!-- History - Сделано кликабельным -->
+    <section id="history-card" class="card p-6 rounded-xl shadow-lg mb-8">
+        <h3 class="text-xl font-semibold mb-4 text-white flex items-center justify-between">
+            История
+            <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+        </h3>
+        <div class="flex items-center space-x-4">
+            <img src="https://placehold.co/60x60/555555/FFFFFF?text=И" alt="Обложка альбома" class="rounded-lg">
+            <div>
+                <p class="font-medium text-white">sadlones</p>
+                <p class="text-sm text-gray-400">SXULXEMPINESS, patience</p>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- Player Bar - Rebuilt from scratch -->
+<footer class="player-bar">
+    <!-- Левая часть: Обложка и информация о треке -->
+    <div class="flex items-center space-x-4 flex-shrink-0">
+        <img id="player-album-art" src="https://placehold.co/60x60/333333/FFFFFF?text=ОБ" alt="Обложка текущего трека"
+             class="rounded-lg">
+        <div>
+            <p id="player-track-title" class="text-sm font-medium text-white">i still see you</p>
+            <p id="player-artist-name" class="text-xs text-gray-400">Money Flip</p>
+        </div>
+        <!-- Изменен цвет по умолчанию на text-gray-300, при наведении - text-white -->
+        <button id="like-track-button" class="text-gray-300 hover:text-white transition-colors duration-200 text-lg"><i
+                class="fas fa-heart"></i></button>
+        <button id="more-options-button" class="text-gray-300 hover:text-white transition-colors duration-200 text-lg">
+            <i class="fas fa-ellipsis-h"></i></button>
+    </div>
+
+    <!-- Центральная часть: Элементы управления и прогресс-бар -->
+    <div class="flex flex-col items-center flex-grow mx-8">
+        <div class="flex items-center space-x-6 mb-2">
+            <!-- Изменен цвет по умолчанию на text-gray-300, при наведении - text-white -->
+            <button id="player-shuffle-button"
+                    class="text-gray-300 hover:text-white transition-colors duration-200 text-lg"><i
+                    class="fas fa-shuffle"></i></button>
+            <button id="previous-track-button"
+                    class="text-gray-300 hover:text-white transition-colors duration-200 text-lg"><i
+                    class="fas fa-backward-step"></i></button>
+            <!-- Кнопка воспроизведения/паузы: сделана круглой и белой с фиксированными размерами -->
+            <button id="play-pause-button"
+                    class="bg-white text-black w-12 h-12 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors duration-200 text-xl">
+                <i id="play-pause-icon" class="fas fa-play"></i>
+            </button>
+            <button id="next-track-button"
+                    class="text-gray-300 hover:text-white transition-colors duration-200 text-lg"><i
+                    class="fas fa-forward-step"></i></button>
+            <button id="repeat-button" class="text-gray-300 hover:text-white transition-colors duration-200 text-lg"><i
+                    class="fas fa-repeat"></i></button>
+        </div>
+        <div class="w-full flex items-center space-x-3">
+            <span id="current-time" class="text-xs text-gray-400">0:00</span>
+            <div id="progress-bar-container" class="progress-bar">
+                <div id="progress-fill" class="progress-fill w-0"></div> <!-- Example progress -->
+            </div>
+            <span id="total-time" class="text-xs text-gray-400">3:45</span>
+        </div>
+    </div>
+
+    <!-- Правая часть: Громкость и дополнительные кнопки -->
+    <div class="flex items-center space-x-4 flex-shrink-0">
+        <!-- Кнопка громкости: заданы фиксированные размеры и центрирование -->
+        <button id="lyrics-button" class="text-gray-300 hover:text-white transition-colors duration-200 text-lg"><i
+                class="fas fa-microphone"></i></button>
+        <button id="queue-button" class="text-gray-300 hover:text-white transition-colors duration-200 text-lg"><i
+                class="fas fa-list"></i></button>
+        <button id="volume-icon"
+                class="text-gray-300 hover:text-white transition-colors duration-200 w-10 h-10 rounded-full flex items-center justify-center">
+            <i class="fas fa-volume-up text-xl"></i>
+        </button>
+        <div id="volume-slider-container" class="volume-slider-container">
+            <div id="volume-fill" class="volume-fill w-3/4"></div> <!-- Volume example -->
+        </div>
+    </div>
+</footer>
+
+<!-- Upload Modal -->
+<div id="upload-modal-overlay" class="upload-modal-overlay">
+    <div class="upload-modal-content">
+        <h3 class="text-xl font-semibold mb-6 text-white text-center">Загрузить новый трек</h3>
+        <form id="upload-form">
+            <label for="track-file">Файл трека (MP3, WAV):</label>
+            <input type="file" id="track-file" accept=".mp3,.wav" required>
+
+            <label for="track-title-input">Название трека:</label>
+            <input type="text" id="track-title-input" placeholder="Введите название трека" required>
+
+            <label for="artist-name-input">Имя исполнителя:</label>
+            <input type="text" id="artist-name-input" placeholder="Введите имя исполнителя" required>
+
+            <div class="flex justify-end space-x-4 mt-6">
+                <button type="button" id="cancel-upload-button"
+                        class="bg-gray-700 text-white px-5 py-2 rounded-full hover:bg-gray-600 transition-colors duration-200">
+                    Отмена
+                </button>
+                <button type="submit"
+                        class="bg-yellow-500 text-black px-5 py-2 rounded-full font-semibold hover:bg-yellow-400 transition-colors duration-200">
+                    Загрузить
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Get DOM elements
+    const mainContentArea = document.getElementById('main-content-area');
+    const playPauseButton = document.getElementById('play-pause-button');
+    const playPauseIcon = document.getElementById('play-pause-icon');
+    const progressBarContainer = document.getElementById('progress-bar-container');
+    const progressFill = document.getElementById('progress-fill');
+    const currentTimeSpan = document.getElementById('current-time');
+    const totalTimeSpan = document.getElementById('total-time');
+    const playerTrackTitle = document.getElementById('player-track-title');
+    const playerArtistName = document.getElementById('player-artist-name');
+    const playerAlbumArt = document.getElementById('player-album-art');
+
+    // Volume slider elements
+    const volumeIcon = document.getElementById('volume-icon');
+    const volumeSliderContainer = document.getElementById('volume-slider-container');
+    const volumeFill = document.getElementById('volume-fill');
+
+    // Sidebar links
+    const searchLink = document.getElementById('search-link');
+    const homeLink = document.getElementById('home-link');
+    const collectionLink = document.getElementById('collection-link');
+    const uploadLink = document.getElementById('upload-link');
+
+    // Content section cards
+    const forYouCard = document.getElementById('for-you-card');
+    const trendsCard = document.getElementById('trends-card');
+    const likedCard = document.getElementById('liked-card');
+    const historyCard = document.getElementById('history-card');
+
+    // Player control buttons
+    const likeTrackButton = document.getElementById('like-track-button');
+    const moreOptionsButton = document.getElementById('more-options-button');
+    const playerShuffleButton = document.getElementById('player-shuffle-button');
+    const previousTrackButton = document.getElementById('previous-track-button');
+    const nextTrackButton = document.getElementById('next-track-button');
+    const repeatButton = document.getElementById('repeat-button');
+    const lyricsButton = document.getElementById('lyrics-button');
+    const queueButton = document.getElementById('queue-button');
+
+    // Upload Modal elements
+    const uploadModalOverlay = document.getElementById('upload-modal-overlay');
+    const uploadForm = document.getElementById('upload-form');
+    const trackFileInput = document.getElementById('track-file');
+    const trackTitleInput = document.getElementById('track-title-input');
+    const artistNameInput = document.getElementById('artist-name-input');
+    const cancelUploadButton = document.getElementById('cancel-upload-button');
+
+    // Create an Audio object
+    const audio = new Audio();
+    let isPlaying = false;
+    let isShuffleOn = false; // State for shuffle
+    let repeatMode = 0; // 0: off, 1: repeat all, 2: repeat one
+
+    // Example track data (you would load real data here)
+    const currentTrack = {
+        title: "i still see you",
+        artist: "Money Flip",
+        src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", // Example MP3 URL
+        albumArt: "https://placehold.co/60x60/333333/FFFFFF?text=ОБ"
+    };
+
+    // Set initial track info
+    audio.src = currentTrack.src;
+    playerTrackTitle.textContent = currentTrack.title;
+    playerArtistName.textContent = currentTrack.artist;
+    playerAlbumArt.src = currentTrack.albumArt;
+
+    // Set initial volume (e.g., 50%)
+    audio.volume = 0.5;
+    volumeFill.style.width = '50%';
+
+    // Function to format time
+    function formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = Math.floor(seconds % 60);
+        return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+    }
+
+    // --- Progress Bar Logic ---
+    let isProgressDragging = false;
+
+    function handleProgressUpdate(e) {
+        const progressBarWidth = progressBarContainer.clientWidth;
+        const rect = progressBarContainer.getBoundingClientRect();
+        let clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+        let clickX = clientX - rect.left;
+
+        // Clamp clickX within the bounds of the progress bar
+        clickX = Math.max(0, Math.min(progressBarWidth, clickX));
+
+        const seekTime = (clickX / progressBarWidth) * audio.duration;
+        audio.currentTime = seekTime;
+        // Update visual fill immediately during drag
+        progressFill.style.width = `${(seekTime / audio.duration) * 100}%`;
+        currentTimeSpan.textContent = formatTime(seekTime);
+    }
+
+    progressBarContainer.addEventListener('mousedown', (e) => {
+        isProgressDragging = true;
+        handleProgressUpdate(e);
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (isProgressDragging) {
+            handleProgressUpdate(e);
+            e.preventDefault(); // Prevent text selection during drag
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        isProgressDragging = false;
+    });
+
+    // Touch events for progress bar
+    progressBarContainer.addEventListener('touchstart', (e) => {
+        isProgressDragging = true;
+        handleProgressUpdate(e);
+        e.preventDefault(); // Prevent scrolling and text selection
+    }, {passive: false});
+
+    document.addEventListener('touchmove', (e) => {
+        if (isProgressDragging) {
+            handleProgressUpdate(e);
+            e.preventDefault(); // Prevent scrolling and text selection
+        }
+    }, {passive: false});
+
+    document.addEventListener('touchend', () => {
+        isProgressDragging = false;
+    });
+
+    // --- Volume Slider Logic ---
+    let isVolumeDragging = false;
+
+    function handleVolumeUpdate(e) {
+        const sliderWidth = volumeSliderContainer.clientWidth;
+        const rect = volumeSliderContainer.getBoundingClientRect();
+        let clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+        let clickX = clientX - rect.left;
+
+        // Clamp clickX within the bounds of the volume slider
+        clickX = Math.max(0, Math.min(sliderWidth, clickX));
+
+        let volume = clickX / sliderWidth;
+        volume = Math.max(0, Math.min(1, volume)); // Clamp between 0 and 1
+
+        audio.volume = volume;
+        volumeFill.style.width = `${volume * 100}%`;
+
+        // Update volume icon based on volume level
+        if (volume === 0) {
+            volumeIcon.querySelector('i').className = 'fas fa-volume-mute';
+        } else if (volume < 0.5) {
+            volumeIcon.querySelector('i').className = 'fas fa-volume-down';
+        } else {
+            volumeIcon.querySelector('i').className = 'fas fa-volume-up';
+        }
+    }
+
+    volumeSliderContainer.addEventListener('mousedown', (e) => {
+        isVolumeDragging = true;
+        handleVolumeUpdate(e);
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (isVolumeDragging) {
+            handleVolumeUpdate(e);
+            e.preventDefault(); // Prevent text selection during drag
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        isVolumeDragging = false;
+    });
+
+    // Touch events for volume slider
+    volumeSliderContainer.addEventListener('touchstart', (e) => {
+        isVolumeDragging = true;
+        handleVolumeUpdate(e);
+        e.preventDefault(); // Prevent scrolling and text selection
+    }, {passive: false});
+
+    document.addEventListener('touchmove', (e) => {
+        if (isVolumeDragging) {
+            handleVolumeUpdate(e);
+            e.preventDefault(); // Prevent scrolling and text selection
+        }
+    }, {passive: false});
+
+    document.addEventListener('touchend', () => {
+        isVolumeDragging = false;
+    });
+
+
+    // --- Other Audio Event Listeners ---
+    // Event listener for play/pause button
+    playPauseButton.addEventListener('click', () => {
+        if (isPlaying) {
+            audio.pause();
+            playPauseIcon.classList.remove('fa-pause');
+            playPauseIcon.classList.add('fa-play');
+        } else {
+            audio.play();
+            playPauseIcon.classList.remove('fa-play');
+            playPauseIcon.classList.add('fa-pause');
+        }
+        isPlaying = !isPlaying;
+    });
+
+    // Event listener for time updates (only update if not dragging progress bar)
+    audio.addEventListener('timeupdate', () => {
+        if (!isProgressDragging) {
+            const progressPercent = (audio.currentTime / audio.duration) * 100;
+            progressFill.style.width = `${progressPercent}%`;
+        }
+        currentTimeSpan.textContent = formatTime(audio.currentTime);
+    });
+
+    // Event listener when audio metadata is loaded
+    audio.addEventListener('loadedmetadata', () => {
+        totalTimeSpan.textContent = formatTime(audio.duration);
+    });
+
+    // Handle when the song ends
+    audio.addEventListener('ended', () => {
+        isPlaying = false;
+        playPauseIcon.classList.remove('fa-pause');
+        playPauseIcon.classList.add('fa-play');
+        audio.currentTime = 0; // Reset to beginning
+        progressFill.style.width = '0%';
+        currentTimeSpan.textContent = '0:00';
+        // If repeat mode is "repeat all", play next song (placeholder)
+        if (repeatMode === 1) {
+            console.log("Playing next song in repeat all mode.");
+            // Add logic to play next song
+        } else if (repeatMode === 2) {
+            console.log("Repeating current song.");
+            audio.play(); // Replay current song
+            isPlaying = true;
+            playPauseIcon.classList.remove('fa-play');
+            playPauseIcon.classList.add('fa-pause');
+        }
+    });
+
+    // Basic error handling
+    audio.addEventListener('error', (e) => {
+        console.error("Audio error:", e);
+        // Используем пользовательское сообщение вместо alert()
+        const errorMessage = document.createElement('div');
+        errorMessage.textContent = "Ошибка воспроизведения аудио. Возможно, файл недоступен или не поддерживается.";
+        errorMessage.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: #ff4d4d;
+                color: white;
+                padding: 15px 25px;
+                border-radius: 8px;
+                z-index: 9999;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                font-family: 'Inter', sans-serif;
+            `;
+        document.body.appendChild(errorMessage);
+        setTimeout(() => {
+            errorMessage.remove();
+        }, 3000); // Сообщение исчезнет через 3 секунды
+    });
+
+    // --- New Button Functionality ---
+
+    // Sidebar Links
+    searchLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        console.log('Нажата кнопка "Поиск"');
+        // Здесь можно добавить логику перехода на страницу поиска
+    });
+
+    homeLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        console.log('Нажата кнопка "Главная"');
+        // Здесь можно добавить логику перехода на главную страницу
+        loadHomePage(); // Go back to the main content
+    });
+
+    collectionLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        console.log('Нажата кнопка "Коллекция"');
+        // Здесь можно добавить логику перехода на страницу коллекции
+    });
+
+    uploadLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        console.log('Нажата кнопка "Загрузить"');
+        showUploadModal(); // Show the upload modal
+    });
+
+    // Content Section Cards (already have cursor and hover effect from CSS)
+    forYouCard.addEventListener('click', () => {
+        console.log('Нажата карточка "Для вас"');
+        loadMusicPage('Для вас');
+    });
+
+    trendsCard.addEventListener('click', () => {
+        console.log('Нажата карточка "Тренды"');
+        loadMusicPage('Тренды');
+    });
+
+    likedCard.addEventListener('click', () => {
+        console.log('Нажата карточка "Мне нравится"');
+        loadMusicPage('Мне нравится');
+    });
+
+    historyCard.addEventListener('click', () => {
+        console.log('Нажата карточка "История"');
+        loadMusicPage('История');
+    });
+
+    // Player Control Buttons
+    likeTrackButton.addEventListener('click', () => {
+        console.log('Нажата кнопка "Мне нравится" (трек)');
+        // Здесь можно добавить логику для добавления/удаления трека из избранного
+        likeTrackButton.querySelector('i').classList.toggle('text-yellow-500'); // Пример: изменение цвета при лайке
+    });
+
+    moreOptionsButton.addEventListener('click', () => {
+        console.log('Нажата кнопка "Больше опций"');
+        // Здесь можно добавить логику для открытия меню с дополнительными опциями
+    });
+
+    playerShuffleButton.addEventListener('click', () => {
+        isShuffleOn = !isShuffleOn;
+        console.log(`Режим перемешивания: ${isShuffleOn ? 'Включен' : 'Выключен'}`);
+        playerShuffleButton.classList.toggle('text-yellow-500', isShuffleOn); // Подсветка кнопки
+        // Здесь можно добавить логику для перемешивания плейлиста
+    });
+
+    previousTrackButton.addEventListener('click', () => {
+        console.log('Нажата кнопка "Предыдущий трек"');
+        // Здесь можно добавить логику для воспроизведения предыдущего трека
+    });
+
+    nextTrackButton.addEventListener('click', () => {
+        console.log('Нажата кнопка "Следующий трек"');
+        // Здесь можно добавить логику для воспроизведения следующего трека
+    });
+
+    repeatButton.addEventListener('click', () => {
+        repeatMode = (repeatMode + 1) % 3; // 0 -> 1 -> 2 -> 0
+        const icon = repeatButton.querySelector('i');
+        switch (repeatMode) {
+            case 0:
+                console.log('Повтор выключен');
+                icon.className = 'fas fa-repeat';
+                repeatButton.classList.remove('text-yellow-500');
+                break;
+            case 1:
+                console.log('Повтор всех треков');
+                icon.className = 'fas fa-repeat'; // Иконка остается прежней
+                repeatButton.classList.add('text-yellow-500'); // Подсветка кнопки
+                break;
+            case 2:
+                console.log('Повтор одного трека');
+                icon.className = 'fas fa-repeat-1'; // Иконка "повтор одного"
+                repeatButton.classList.add('text-yellow-500');
+                break;
+        }
+        // Здесь можно добавить логику для управления режимом повтора
+    });
+
+    lyricsButton.addEventListener('click', () => {
+        console.log('Нажата кнопка "Микрофон" (Текст песни)');
+        // Здесь можно добавить логику для отображения текста песни
+    });
+
+    queueButton.addEventListener('click', () => {
+        console.log('Нажата кнопка "Список воспроизведения"');
+        // Здесь можно добавить логику для открытия списка воспроизведения
+    });
+
+    // --- New Functionality: Loading Music Pages ---
+
+    // Function to simulate fetching music data from a backend
+    async function fetchMusicData(category) {
+        const mockData = {
+            "Для вас": [],
+            "Тренды": [],
+            "Мне нравится": [],
+            "История": []
+        };
+
+        console.log(`🎵 Fetching music data for category: ${category}`);
+        let convertedTracks = [];
+
+        try {
+            const token = localStorage.getItem('token');
+            const responseUserPlayLists = await fetch('http://localhost:8080/api/user/playlists', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+            });
+
+            if (!responseUserPlayLists.ok) {
+                const errorText = await responseUserPlayLists.text();
+                console.error(`❌ HTTP ${responseUserPlayLists.status}: ${errorText}`);
+                return mockData[category] || [];
+            }
+
+            const playlists = await responseUserPlayLists.json();
+
+            if (!Array.isArray(playlists)) {
+                console.error("❌ playlists не массив:", playlists);
+                return mockData[category] || [];
+            }
+
+            const favoritePlaylist = playlists.find(pl => pl.name === "Favorites");
+
+            if (!favoritePlaylist || !Array.isArray(favoritePlaylist.tracks)) {
+                console.warn("⚠️ Плейлист 'Favorites' не найден или tracks не массив:", favoritePlaylist);
+                return mockData[category] || [];
+            }
+
+            convertedTracks = favoritePlaylist.tracks.map(music => ({
+                title: music.name,
+                artist: music.artist,
+                duration: "3:30",
+                albumArt: "https://placehold.co/60x60/FFD700/000000?text=♥",
+                src: music.url
+            }));
+
+        } catch (error) {
+            console.error("⚠️ Ошибка при получении плейлистов:", error);
+            return mockData[category] || [];
+        }
+
+        mockData["Мне нравится"] = [...mockData["Мне нравится"], ...convertedTracks];
+        return mockData[category] || [];
+    }
+
+
+    async function loadMusicPage(category) {
+        mainContentArea.innerHTML = `
+                <header class="flex justify-between items-center mb-8">
+                    <h2 class="text-3xl font-bold text-white">${category}</h2>
+                    <button id="back-to-home" class="bg-gray-700 text-white px-4 py-2 rounded-full hover:bg-gray-600 transition-colors duration-200">
+                        <i class="fas fa-arrow-left mr-2"></i> Назад
+                    </button>
+                </header>
+                <div id="music-list" class="grid grid-cols-1 gap-4">
+                    <p class="text-gray-400 text-center">Загрузка музыки...</p>
+                </div>
+            `;
+
+        const musicListDiv = document.getElementById('music-list');
+        const backToHomeButton = document.getElementById('back-to-home');
+
+        backToHomeButton.addEventListener('click', () => {
+            loadHomePage(); // Go back to the initial home page content
+        });
+
+        try {
+            const musicData = await fetchMusicData(category);
+            musicListDiv.innerHTML = ''; // Clear loading message
+
+            if (musicData.length === 0) {
+                musicListDiv.innerHTML = '<p class="text-gray-400 text-center">Музыка не найдена в этой категории.</p>';
+                return;
+            }
+
+            musicData.forEach(track => {
+                const trackElement = document.createElement('div');
+                trackElement.className = 'flex items-center bg-gray-800 p-4 rounded-lg shadow-md hover:bg-gray-700 transition-colors duration-200 cursor-pointer';
+                trackElement.innerHTML = `
+                        <img src="${track.albumArt}" alt="Обложка альбома" class="w-16 h-16 rounded-lg mr-4">
+                        <div class="flex-grow">
+                            <p class="font-medium text-white">${track.title}</p>
+                            <p class="text-sm text-gray-400">${track.artist}</p>
+                        </div>
+                        <span class="text-gray-400 text-sm">${track.duration}</span>
+                    `;
+                // Add a click listener to play the track (placeholder)
+                trackElement.addEventListener('click', () => {
+                    console.log(`Playing: ${track.title} by ${track.artist}`);
+                    // Placeholder for playing the actual track
+                    audio.src = track.src || "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"; // Use track.src or default
+                    playerTrackTitle.textContent = track.title;
+                    playerArtistName.textContent = track.artist;
+                    playerAlbumArt.src = track.albumArt;
+                    audio.play();
+                    isPlaying = true;
+                    playPauseIcon.classList.remove('fa-play');
+                    playPauseIcon.classList.add('fa-pause');
+                });
+                musicListDiv.appendChild(trackElement);
+            });
+
+        } catch (error) {
+            console.error("Error loading music data:", error);
+            musicListDiv.innerHTML = '<p class="text-red-400 text-center">Не удалось загрузить музыку. Пожалуйста, попробуйте еще раз.</p>';
+        }
+    }
+
+    // Function to load the initial home page content
+    function loadHomePage() {
+        mainContentArea.innerHTML = `
+                <header class="flex justify-end items-center mb-8">
+                </header>
+
+                <section class="relative w-full h-[512px] rounded-xl overflow-hidden mb-8 gradient-bg flex items-center justify-center">
+                    <img src="https://placehold.co/800x300/330066/FFFFFF?text=Фоновое+изображение" alt="Моя волна фон" class="absolute inset-0 w-full h-full object-cover opacity-30">
+                    <div class="relative z-10 text-center">
+                    </div>
+                </section>
+
+                <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    <div id="for-you-card" class="card p-6 rounded-xl shadow-lg">
+                        <h3 class="text-xl font-semibold mb-4 text-white">Для вас</h3>
+                        <div class="flex items-center space-x-4">
+                            <img src="https://placehold.co/60x60/555555/FFFFFF?text=А" alt="Обложка альбома" class="rounded-lg">
+                            <div>
+                                <p class="font-medium text-white">ANTARCTIC</p>
+                                <p class="text-sm text-gray-400">Lestmor</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="trends-card" class="card p-6 rounded-xl shadow-lg">
+                        <h3 class="text-xl font-semibold mb-4 text-white">Тренды</h3>
+                        <div class="flex items-center space-x-4">
+                            <img src="https://placehold.co/60x60/555555/FFFFFF?text=Т" alt="Обложка альбома" class="rounded-lg">
+                            <div>
+                                <p class="font-medium text-white">Майби Бэйби</p>
+                                <p class="text-sm text-gray-400">T-Fest</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="liked-card" class="card p-6 rounded-xl shadow-lg col-span-1 md:col-span-2 lg:col-span-1">
+                        <h3 class="text-xl font-semibold mb-4 text-white flex items-center justify-between">
+                            Мне нравится
+                            <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                        </h3>
+                        <p class="text-sm text-gray-400">341 трек</p>
+                    </div>
+                </section>
+
+                <section id="history-card" class="card p-6 rounded-xl shadow-lg mb-8">
+                    <h3 class="text-xl font-semibold mb-4 text-white flex items-center justify-between">
+                        История
+                        <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                    </h3>
+                    <div class="flex items-center space-x-4">
+                        <img src="https://placehold.co/60x60/555555/FFFFFF?text=И" alt="Обложка альбома" class="rounded-lg">
+                        <div>
+                            <p class="font-medium text-white">sadlones</p>
+                            <p class="text-sm text-gray-400">SXULXEMPINESS, patience</p>
+                        </div>
+                    </div>
+                </section>
+            `;
+        // Re-attach event listeners for the newly loaded home page cards
+        document.getElementById('for-you-card').addEventListener('click', () => {
+            console.log('Нажата карточка "Для вас"');
+            loadMusicPage('Для вас');
+        });
+        document.getElementById('trends-card').addEventListener('click', () => {
+            console.log('Нажата карточка "Тренды"');
+            loadMusicPage('Тренды');
+        });
+        document.getElementById('liked-card').addEventListener('click', () => {
+            console.log('Нажата карточка "Мне нравится"');
+            loadMusicPage('Мне нравится');
+        });
+        document.getElementById('history-card').addEventListener('click', () => {
+            console.log('Нажата карточка "История"');
+            loadMusicPage('История');
+        });
+    }
+
+
+    // Initial page load
+    loadHomePage(); // Load the home page content initially
+
+    // --- Upload Modal Functions ---
+    function showUploadModal() {
+        uploadModalOverlay.classList.add('show');
+    }
+
+    function hideUploadModal() {
+        uploadModalOverlay.classList.remove('show');
+        // Reset form fields when closing
+        uploadForm.reset();
+    }
+
+    // Event listener for opening the modal
+    uploadLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        showUploadModal();
+    });
+
+    // Event listener for closing the modal via "Отмена" button
+    cancelUploadButton.addEventListener('click', () => {
+        hideUploadModal();
+    });
+
+    // Event listener for closing the modal by clicking outside
+    uploadModalOverlay.addEventListener('click', (e) => {
+        if (e.target === uploadModalOverlay) {
+            hideUploadModal();
+        }
+    });
+
+    // Event listener for form submission
+    uploadForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const file = trackFileInput.files[0];
+        const name = trackTitleInput.value;
+        const artist = artistNameInput.value;
+
+        if (file && name && artist) {
+            console.log('Загрузка трека:', file.name, file.type, file.size);
+            console.log('Название:', name);
+            console.log('Исполнитель:', artist);
+
+            const music = {
+                name: trackTitleInput.value, // ✅
+                artist: artistNameInput.value,
+            };
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('music', new Blob([JSON.stringify(music)], { type: 'application/json' }));
+
+            try {
+                const response = await fetch('http://localhost:8080/api/music', {
+                    method: 'POST',
+                    body: formData
+                });
+
+
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Трек успешно загружен:', data);
+
+                    const token = localStorage.getItem('token');
+                    const responseUserPlaylists = await fetch('http://localhost:8080/api/user/playlists', {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    const playlists = await responseUserPlaylists.json();
+                    console.log('Ответ от /api/user/playlists:', playlists);
+
+                    const favoritePlaylist = playlists.find(pl => pl.name === "Favorites");
+
+                    if (!favoritePlaylist) {
+                        console.log("❌ Плейлист 'Favorites' не найден");
+                    } else {
+                        const trackId = data.id ?? (Array.isArray(data) ? data[0]?.id : null);
+                        if (trackId) {
+                            await fetch(`http://localhost:8080/api/playlists/${favoritePlaylist.id}/tracks/${trackId}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Authorization': `Bearer ${token}`
+                                }
+                            });
+                        }
+                    }
+
+                    hideUploadModal();
+                    alertMessage("Трек успешно загружен", "success");
+                } else {
+                    console.error('Ошибка при загрузке трека:', data.message);
+                    alertMessage("Ошибка при загрузке трека", "error");
+                }
+            } catch (error) {
+                console.error("⚠️ Ошибка при получении плейлистов:", error);
+                alertMessage("Ошибка сети или сервера", "error");
+            }
+        } else {
+            alertMessage("Пожалуйста, заполните все поля и выберите файл.", "error");
+        }
+    });
+
+
+    // Custom alert/message box function
+    function alertMessage(message, type) {
+        const existingMessage = document.getElementById('custom-message');
+        if (existingMessage) {
+            existingMessage.remove();
+        }
+
+        const messageDiv = document.createElement('div');
+        messageDiv.id = 'custom-message';
+        messageDiv.textContent = message;
+        messageDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 25px;
+                border-radius: 8px;
+                color: white;
+                font-family: 'Inter', sans-serif;
+                z-index: 3000;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                animation: slideIn 0.3s forwards;
+            `;
+
+        if (type === 'success') {
+            messageDiv.style.backgroundColor = '#4CAF50'; // Green
+        } else if (type === 'error') {
+            messageDiv.style.backgroundColor = '#f44336'; // Red
+        } else {
+            messageDiv.style.backgroundColor = '#2196F3'; // Blue (info)
+        }
+
+        // Add CSS for animation
+        const style = document.createElement('style');
+        style.innerHTML = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOut {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+            `;
+        document.head.appendChild(style);
+
+
+        document.body.appendChild(messageDiv);
+
+        setTimeout(() => {
+            messageDiv.style.animation = 'slideOut 0.3s forwards';
+            messageDiv.addEventListener('animationend', () => {
+                messageDiv.remove();
+            });
+        }, 3000);
+    }
+
+</script>
+
+</body>
+</html>

@@ -2,45 +2,58 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-<h2>Welcome</h2>
-<p>This is a protected page.</p>
-<button onclick="goMusics()">go musics</button>
-
-<button onclick="logout()">Logout</button>
-
+<body class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 min-h-screen flex items-center justify-center">
+<div class="bg-white p-8 rounded-xl shadow-2xl max-w-lg w-full text-center transform transition-all hover:scale-105">
+    <h1 class="text-3xl font-bold text-gray-800 mb-4">Welcome to Your Dashboard!</h1>
+    <p class="text-gray-600 mb-6">You're successfully signed in. Explore your personalized content here.</p>
+    <div id="user-info" class="text-gray-600 mb-6"></div>
+    <div class="space-x-4">
+        <button onclick="signout()" class="inline-block bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition duration-300">Sign Out</button>
+        <a th:href="@{/home-page}" class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition duration-300">View Profile</a>
+    </div>
+</div>
 <script>
-    async function fetchProtectedData() {
+    async function fetchUserInfo() {
         const token = localStorage.getItem('token');
-
+        console.log(token);
         if (!token) {
-
-            window.location.href = '/signin';
+            window.location.href = '/signin?error=Please sign in.';
             return;
         }
+        if (typeof token !== 'string') {
+            console.error('Invalid token format:', token);
+        }
 
-        const response = await fetch('http://localhost:8080/api/protected', {
-            method: 'GET',
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        try {
+            const response = await fetch('http://localhost:8080/api/user', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
 
-        if (!response.ok) {
-            localStorage.removeItem('token');
-            window.location.href = '/signin';
+            if (response.ok) {
+                const user = await response.json();
+                document.getElementById('user-info').innerText = `Hello, ${user.username}!`;
+            } else {
+               window.location.href = '/signin?error=Invalid token.';
+            }
+        } catch (error) {
+            window.location.href = '/signin?error=An error occurred.';
         }
     }
 
-    function logout() {
+    function signout() {
         localStorage.removeItem('token');
-        window.location.href = '/signin';
-    }
-    function goMusics() {
-        window.location.href = '/musics';
+        window.location.href = '/signin?success=Signed out successfully.';
     }
 
-    fetchProtectedData();
+    // Вызов при загрузке страницы
+    fetchUserInfo();
 </script>
 </body>
 </html>

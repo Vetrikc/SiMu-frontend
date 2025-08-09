@@ -20,4 +20,8 @@ public class PageController {
     public String homePage() {
         return "home"; // Шаблон home.html
     }
+    @GetMapping("/home-page")
+    public String homepagePage() {
+        return "home-page"; // Шаблон home.html
+    }
 }

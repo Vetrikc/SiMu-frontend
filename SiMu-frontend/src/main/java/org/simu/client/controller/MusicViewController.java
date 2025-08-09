@@ -52,9 +52,10 @@ public class MusicViewController {
         return "musicList"; // JSP-файл
     }
 
-    @RequestMapping("/upload")
+    @RequestMapping("/upload")//TODO перписать нормально на DTO
     public String handleFileUpload(@ModelAttribute("music") Music music, @RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes, Model model) {
         System.out.println(music);
+
         if (file.isEmpty()) {
             redirectAttributes.addFlashAttribute("message", "Please select a file");
             model.addAttribute("music", music);
@@ -106,6 +107,4 @@ public class MusicViewController {
     public String app() {
         return "musicPlayer";
     }
-
-
 }
