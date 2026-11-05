@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${playlist.name})}"></head>
+<body class="bg-ink text-gray-100">
+<div class="flex min-h-screen">
+    <aside th:replace="~{fragments/layout :: sidebar('playlists')}"></aside>
+
+    <div class="flex min-w-0 flex-1 flex-col">
+        <nav th:replace="~{fragments/layout :: mobileNav}"></nav>
+
+        <main class="flex-1 px-4 py-6 pb-32 md:px-10 md:py-8">
+            <div th:replace="~{fragments/layout :: flash}"></div>
+
+            <a th:href="@{/playlists}" class="mb-6 inline-flex items-center gap-2 text-sm text-muted transition hover:text-white">
+                ← Все плейлисты
+            </a>
+
+            <section class="rounded-3xl border border-line bg-gradient-to-br from-purple-500/15 via-indigo-500/10 to-pink-500/15 p-6 md:p-8">
+                <div class="flex flex-wrap items-center gap-6">
+                    <div class="grid h-28 w-28 place-items-center rounded-3xl bg-gradient-to-br from-purple-500 to-pink-500 text-4xl">☰</div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-xs uppercase tracking-widest text-muted">Плейлист</p>
+                        <h1 class="mt-1 truncate text-3xl font-semibold" th:text="${playlist.name}">name</h1>
+                        <p class="mt-1 text-muted">
+                            <span th:text="${#lists.size(tracks)}">0</span> треков
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <div class="mt-6 grid gap-4 lg:grid-cols-3">
+                <section class="rounded-2xl border border-line bg-panel p-5 lg:col-span-2">
+                    <h2 class="mb-4 text-sm font-medium text-muted">Треки</h2>
+
+                    <p th:if="${#lists.isEmpty(tracks)}" class="text-sm text-muted">
+                        В плейлисте пока нет треков — добавьте первый справа.
+                    </p>
+
+                    <ul class="space-y-2">
+                        <li th:each="track, stat : ${tracks}"
+                            class="flex items-center gap-3 rounded-xl border border-line bg-ink/60 px-3 py-2.5">
+                            <span class="w-6 text-center text-xs text-muted" th:text="${stat.count}">1</span>
+                            <div class="min-w-0 flex-1">
+                                <p class="truncate text-sm font-medium" th:text="${track.name}">name</p>
+                                <p class="truncate text-xs text-muted" th:text="${track.artist}">artist</p>
+                            </div>
+                            <button type="button"
+                                    class="play-btn grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-br from-indigo-500 to-pink-500 text-xs transition hover:opacity-90"
+                                    th:attr="data-src=${track.url},data-title=${track.name},data-artist=${track.artist}"
+                                    title="Слушать">▶</button>
+                        </li>
+                    </ul>
+                </section>
+
+                <div class="space-y-4">
+                    <section class="rounded-2xl border border-line bg-panel p-5">
+                        <h2 class="mb-3 text-sm font-medium text-muted">Добавить трек</h2>
+                        <p th:if="${#lists.isEmpty(library)}" class="text-sm text-muted">
+                            Библиотека пуста. <a th:href="@{/upload}" class="text-indigo-400 hover:text-indigo-300">Загрузить трек</a>
+                        </p>
+                        <form th:if="${!#lists.isEmpty(library)}" th:action="@{/playlists/{id}/tracks(id=${playlist.id})}"
+                              method="post" class="space-y-3">
+                            <select name="musicId" required
+                                    class="w-full rounded-xl border border-line bg-ink px-3 py-2.5 text-sm outline-none focus:border-indigo-500">
+                                <option th:each="track : ${library}" th:value="${track.id}"
+                                        th:text="${track.name} + ' — ' + ${track.artist}"></option>
+                            </select>
+                            <button type="submit"
+                                    class="w-full rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 px-4 py-2.5 text-sm font-medium transition hover:opacity-90">
+                                Добавить
+                            </button>
+                        </form>
+                    </section>
+
+                    <section class="rounded-2xl border border-line bg-panel p-5">
+                        <h2 class="mb-3 text-sm font-medium text-muted">Опасная зона</h2>
+                        <form th:action="@{/playlists/{id}/delete(id=${playlist.id})}" method="post"
+                              data-confirm="Удалить плейлист «${playlist.name}»?">
+                            <button type="submit"
+                                    class="w-full rounded-xl border border-rose-500/40 px-4 py-2.5 text-sm text-rose-300 transition hover:bg-rose-500/10">
+                                Удалить плейлист
+                            </button>
+                        </form>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: player}"></div>
+</body>
+</html>

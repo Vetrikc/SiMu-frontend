@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Загрузка трека')}"></head>
+<body class="bg-ink text-gray-100">
+<div class="flex min-h-screen">
+    <aside th:replace="~{fragments/layout :: sidebar('upload')}"></aside>
+
+    <div class="flex min-w-0 flex-1 flex-col">
+        <nav th:replace="~{fragments/layout :: mobileNav}"></nav>
+
+        <main class="flex-1 px-4 py-6 pb-32 md:px-10 md:py-8">
+            <div th:replace="~{fragments/layout :: flash}"></div>
+
+            <h1 class="text-2xl font-semibold md:text-3xl">Загрузка трека</h1>
+            <p class="mt-1 text-sm text-muted">Файл уйдёт в S3-хранилище, метаданные — в базу.</p>
+
+            <form th:action="@{/upload}" method="post" enctype="multipart/form-data"
+                  class="mt-6 max-w-xl space-y-4 rounded-2xl border border-line bg-panel p-6">
+                <div>
+                    <label for="name" class="mb-1 block text-sm text-muted">Название</label>
+                    <input id="name" name="name" type="text" required maxlength="120"
+                           class="w-full rounded-xl border border-line bg-ink px-4 py-2.5 text-sm outline-none transition focus:border-indigo-500">
+                </div>
+                <div>
+                    <label for="artist" class="mb-1 block text-sm text-muted">Исполнитель</label>
+                    <input id="artist" name="artist" type="text" required maxlength="120"
+                           class="w-full rounded-xl border border-line bg-ink px-4 py-2.5 text-sm outline-none transition focus:border-indigo-500">
+                </div>
+                <div>
+                    <label for="file" class="mb-1 block text-sm text-muted">Аудиофайл (до 20 МБ)</label>
+                    <input id="file" name="file" type="file" accept="audio/*" required
+                           class="w-full rounded-xl border border-line bg-ink px-4 py-2.5 text-sm outline-none file:mr-4 file:rounded-lg file:border-0 file:bg-white/10 file:px-3 file:py-1.5 file:text-sm file:text-gray-200">
+                </div>
+                <button type="submit"
+                        class="rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 px-5 py-2.5 text-sm font-medium transition hover:opacity-90">
+                    Загрузить
+                </button>
+            </form>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: player}"></div>
+</body>
+</html>

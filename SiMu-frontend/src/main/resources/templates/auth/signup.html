@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Регистрация')}"></head>
+<body class="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-4">
+<div class="w-full max-w-md rounded-2xl border border-white/10 bg-panel p-8 shadow-2xl">
+    <div class="mb-6 flex items-center gap-3">
+        <span class="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 font-bold">S</span>
+        <div>
+            <h1 class="text-xl font-semibold">Создать аккаунт</h1>
+            <p class="text-sm text-muted">Пара шагов до вашей библиотеки</p>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <form th:action="@{/signup}" method="post" class="space-y-4">
+        <div>
+            <label for="username" class="mb-1 block text-sm text-muted">Имя пользователя</label>
+            <input id="username" name="username" type="text" autocomplete="username" required
+                   minlength="2" maxlength="20" pattern="[A-Za-z0-9_\-]+"
+                   title="2–20 символов: буквы, цифры, дефис и подчёркивание"
+                   class="w-full rounded-xl border border-line bg-ink px-4 py-2.5 text-sm outline-none transition focus:border-indigo-500">
+        </div>
+        <div>
+            <label for="email" class="mb-1 block text-sm text-muted">E-mail</label>
+            <input id="email" name="email" type="email" autocomplete="email" required
+                   class="w-full rounded-xl border border-line bg-ink px-4 py-2.5 text-sm outline-none transition focus:border-indigo-500">
+        </div>
+        <div>
+            <label for="password" class="mb-1 block text-sm text-muted">Пароль</label>
+            <input id="password" name="password" type="password" autocomplete="new-password" required
+                   minlength="6" maxlength="100"
+                   pattern="(?=.*[A-Z])(?=.*\d).{6,100}"
+                   title="Минимум 6 символов, одна заглавная буква и одна цифра"
+                   class="w-full rounded-xl border border-line bg-ink px-4 py-2.5 text-sm outline-none transition focus:border-indigo-500">
+            <p class="mt-1 text-xs text-muted">6+ символов, заглавная буква и цифра</p>
+        </div>
+        <button type="submit"
+                class="w-full rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 px-4 py-3 text-sm font-medium transition hover:opacity-90">
+            Зарегистрироваться
+        </button>
+    </form>
+
+    <div class="my-5 flex items-center gap-3 text-xs text-muted">
+        <span class="h-px flex-1 bg-line"></span>или<span class="h-px flex-1 bg-line"></span>
+    </div>
+
+    <a th:href="@{/oauth2/google}"
+       class="flex w-full items-center justify-center gap-3 rounded-xl border border-line px-4 py-3 text-sm transition hover:bg-white/5">
+        <span class="grid h-5 w-5 place-items-center rounded-full bg-white text-xs font-bold text-gray-900">G</span>
+        Продолжить с Google
+    </a>
+
+    <p class="mt-6 text-center text-sm text-muted">
+        Уже есть аккаунт? <a th:href="@{/signin}" class="text-indigo-400 hover:text-indigo-300">Войти</a>
+    </p>
+</div>
+</body>
+</html>

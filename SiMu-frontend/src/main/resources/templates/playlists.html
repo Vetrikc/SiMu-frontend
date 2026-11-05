@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Плейлисты')}"></head>
+<body class="bg-ink text-gray-100">
+<div class="flex min-h-screen">
+    <aside th:replace="~{fragments/layout :: sidebar('playlists')}"></aside>
+
+    <div class="flex min-w-0 flex-1 flex-col">
+        <nav th:replace="~{fragments/layout :: mobileNav}"></nav>
+
+        <main class="flex-1 px-4 py-6 pb-32 md:px-10 md:py-8">
+            <div th:replace="~{fragments/layout :: flash}"></div>
+
+            <h1 class="text-2xl font-semibold md:text-3xl">Плейлисты</h1>
+            <p class="mt-1 text-sm text-muted">Соберите треки в подборки — они привязаны к вашему аккаунту.</p>
+
+            <form th:action="@{/playlists}" method="post"
+                  class="mt-6 flex max-w-xl flex-wrap gap-3 rounded-2xl border border-line bg-panel p-4">
+                <input name="name" type="text" required maxlength="120" placeholder="Название плейлиста"
+                       class="min-w-0 flex-1 rounded-xl border border-line bg-ink px-4 py-2.5 text-sm outline-none transition placeholder:text-muted focus:border-indigo-500">
+                <button type="submit"
+                        class="rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 px-4 py-2.5 text-sm font-medium transition hover:opacity-90">
+                    Создать
+                </button>
+            </form>
+
+            <div th:if="${#lists.isEmpty(playlists)}"
+                 class="mt-6 rounded-2xl border border-dashed border-line bg-panel/60 p-10 text-center">
+                <p class="text-lg font-medium">Плейлистов пока нет</p>
+                <p class="mt-1 text-sm text-muted">Создайте первый — например, «Любимое» или «Для тренировки».</p>
+            </div>
+
+            <div class="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                <a th:each="playlist : ${playlists}" th:href="@{/playlists/{id}(id=${playlist.id})}"
+                   class="rounded-2xl border border-line bg-panel p-4 transition hover:border-indigo-500/40">
+                    <div class="flex items-center gap-3">
+                        <div class="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-purple-500/30 to-pink-500/30 text-lg">☰</div>
+                        <div class="min-w-0">
+                            <p class="truncate font-medium" th:text="${playlist.name}">name</p>
+                            <p class="text-sm text-muted">
+                                <span th:text="${#lists.size(playlist.tracks)}">0</span> треков
+                            </p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: player}"></div>
+</body>
+</html>

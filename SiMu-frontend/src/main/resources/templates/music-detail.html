@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${track.name})}"></head>
+<body class="bg-ink text-gray-100">
+<div class="flex min-h-screen">
+    <aside th:replace="~{fragments/layout :: sidebar('home')}"></aside>
+
+    <div class="flex min-w-0 flex-1 flex-col">
+        <nav th:replace="~{fragments/layout :: mobileNav}"></nav>
+
+        <main class="flex-1 px-4 py-6 pb-32 md:px-10 md:py-8">
+            <div th:replace="~{fragments/layout :: flash}"></div>
+
+            <a th:href="@{/home}" class="mb-6 inline-flex items-center gap-2 text-sm text-muted transition hover:text-white">
+                ← Назад в библиотеку
+            </a>
+
+            <section class="rounded-3xl border border-line bg-gradient-to-br from-indigo-500/15 via-purple-500/10 to-pink-500/15 p-6 md:p-8">
+                <div class="flex flex-wrap items-center gap-6">
+                    <div class="grid h-28 w-28 place-items-center rounded-3xl bg-gradient-to-br from-indigo-500 to-pink-500 text-4xl">♪</div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-xs uppercase tracking-widest text-muted">Трек</p>
+                        <h1 class="mt-1 truncate text-3xl font-semibold" th:text="${track.name}">name</h1>
+                        <p class="mt-1 text-muted" th:text="${track.artist}">artist</p>
+                        <div class="mt-5 flex flex-wrap items-center gap-3">
+                            <button type="button"
+                                    class="play-btn rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-gray-900 transition hover:bg-white/90"
+                                    th:attr="data-src=${track.url},data-title=${track.name},data-artist=${track.artist}">
+                                Слушать
+                            </button>
+                            <a th:href="${track.url}" target="_blank" rel="noopener"
+                               class="rounded-xl border border-line px-4 py-2.5 text-sm transition hover:bg-white/5">
+                                Открыть файл
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="mt-6 grid gap-4 lg:grid-cols-2">
+                <section class="rounded-2xl border border-line bg-panel p-5">
+                    <h2 class="mb-3 text-sm font-medium text-muted">Добавить в плейлист</h2>
+                    <div th:if="${#lists.isEmpty(playlists)}" class="text-sm text-muted">
+                        У вас пока нет плейлистов.
+                        <a th:href="@{/playlists}" class="text-indigo-400 hover:text-indigo-300">Создать первый</a>
+                    </div>
+                    <form th:if="${!#lists.isEmpty(playlists)}" th:action="@{/playlists/add-track}" method="post"
+                          class="flex flex-wrap items-center gap-3">
+                        <input type="hidden" name="musicId" th:value="${track.id}">
+                        <select name="playlistId" required
+                                class="min-w-0 flex-1 rounded-xl border border-line bg-ink px-3 py-2.5 text-sm outline-none focus:border-indigo-500">
+                            <option th:each="playlist : ${playlists}" th:value="${playlist.id}"
+                                    th:text="${playlist.name}"></option>
+                        </select>
+                        <button type="submit"
+                                class="rounded-xl border border-line px-4 py-2.5 text-sm transition hover:bg-white/5">
+                            Добавить
+                        </button>
+                    </form>
+                </section>
+
+                <section class="rounded-2xl border border-line bg-panel p-5">
+                    <h2 class="mb-3 text-sm font-medium text-muted">Опасная зона</h2>
+                    <p class="mb-4 text-sm text-muted">
+                        Трек исчезнет из библиотеки. Плейлисты, где он был, продолжат работать.
+                    </p>
+                    <form th:action="@{/music/{id}/delete(id=${track.id})}" method="post"
+                          data-confirm="Удалить трек «${track.name}»?">
+                        <button type="submit"
+                                class="rounded-xl border border-rose-500/40 px-4 py-2.5 text-sm text-rose-300 transition hover:bg-rose-500/10">
+                            Удалить трек
+                        </button>
+                    </form>
+                </section>
+            </div>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: player}"></div>
+</body>
+</html>

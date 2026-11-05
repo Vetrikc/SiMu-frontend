@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Вход')}"></head>
+<body class="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-4">
+<div class="w-full max-w-md rounded-2xl border border-white/10 bg-panel p-8 shadow-2xl">
+    <div class="mb-6 flex items-center gap-3">
+        <span class="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 font-bold">S</span>
+        <div>
+            <h1 class="text-xl font-semibold">Вход в SiMu</h1>
+            <p class="text-sm text-muted">Продолжите слушать свою музыку</p>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <form th:action="@{/signin}" method="post" class="space-y-4">
+        <div>
+            <label for="username" class="mb-1 block text-sm text-muted">Имя пользователя</label>
+            <input id="username" name="username" type="text" autocomplete="username" required
+                   class="w-full rounded-xl border border-line bg-ink px-4 py-2.5 text-sm outline-none transition focus:border-indigo-500">
+        </div>
+        <div>
+            <label for="password" class="mb-1 block text-sm text-muted">Пароль</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required
+                   class="w-full rounded-xl border border-line bg-ink px-4 py-2.5 text-sm outline-none transition focus:border-indigo-500">
+        </div>
+        <button type="submit"
+                class="w-full rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 px-4 py-3 text-sm font-medium transition hover:opacity-90">
+            Войти
+        </button>
+    </form>
+
+    <div class="my-5 flex items-center gap-3 text-xs text-muted">
+        <span class="h-px flex-1 bg-line"></span>или<span class="h-px flex-1 bg-line"></span>
+    </div>
+
+    <a th:href="@{/oauth2/google}"
+       class="flex w-full items-center justify-center gap-3 rounded-xl border border-line px-4 py-3 text-sm transition hover:bg-white/5">
+        <span class="grid h-5 w-5 place-items-center rounded-full bg-white text-xs font-bold text-gray-900">G</span>
+        Продолжить с Google
+    </a>
+
+    <div class="mt-6 flex items-center justify-between text-sm text-muted">
+        <a th:href="@{/forgot-password}" class="hover:text-white">Забыли пароль?</a>
+        <a th:href="@{/signup}" class="text-indigo-400 hover:text-indigo-300">Создать аккаунт</a>
+    </div>
+</div>
+</body>
+</html>

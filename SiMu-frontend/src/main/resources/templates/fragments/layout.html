@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' · SiMu'">SiMu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ink: '#0e0e12',
+                        panel: '#16161c',
+                        line: '#26262f',
+                        muted: '#9aa0ad'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <script th:src="@{/js/app.js}" defer></script>
+</head>
+
+<body class="bg-ink text-gray-100 antialiased">
+
+<!-- Sidebar of the signed-in application -->
+<aside th:fragment="sidebar(active)"
+       class="hidden w-64 shrink-0 flex-col gap-1 border-r border-line bg-panel p-5 md:flex sticky top-0 h-screen">
+    <a th:href="@{/home}" class="mb-6 flex items-center gap-3">
+        <span class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 font-bold">S</span>
+        <span class="text-lg font-semibold tracking-tight">SiMu</span>
+    </a>
+
+    <nav class="flex flex-col gap-1 text-sm">
+        <a th:href="@{/home}"
+           th:classappend="${active == 'home'} ? 'bg-white/10 text-white' : 'text-muted hover:bg-white/5 hover:text-white'"
+           class="rounded-xl px-3 py-2 transition">Библиотека</a>
+        <a th:href="@{/playlists}"
+           th:classappend="${active == 'playlists'} ? 'bg-white/10 text-white' : 'text-muted hover:bg-white/5 hover:text-white'"
+           class="rounded-xl px-3 py-2 transition">Плейлисты</a>
+        <a th:href="@{/upload}"
+           th:classappend="${active == 'upload'} ? 'bg-white/10 text-white' : 'text-muted hover:bg-white/5 hover:text-white'"
+           class="rounded-xl px-3 py-2 transition">Загрузить трек</a>
+        <a th:href="@{/profile}"
+           th:classappend="${active == 'profile'} ? 'bg-white/10 text-white' : 'text-muted hover:bg-white/5 hover:text-white'"
+           class="rounded-xl px-3 py-2 transition">Профиль</a>
+    </nav>
+
+    <div class="mt-auto border-t border-line pt-4">
+        <div class="mb-3 flex items-center gap-3">
+            <span class="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-indigo-500 to-pink-500 text-sm font-semibold"
+                  th:text="${#strings.substring(currentUser ?: '?', 0, 1).toUpperCase()}">U</span>
+            <div class="min-w-0">
+                <p class="truncate text-sm font-medium" th:text="${currentUser}">username</p>
+                <p class="text-xs text-muted">в аккаунте</p>
+            </div>
+        </div>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit"
+                    class="w-full rounded-xl border border-line px-3 py-2 text-sm text-muted transition hover:bg-white/5 hover:text-white">
+                Выйти
+            </button>
+        </form>
+    </div>
+</aside>
+
+<!-- Mobile navigation -->
+<nav th:fragment="mobileNav" class="sticky top-0 z-20 flex items-center justify-between gap-2 border-b border-line bg-panel/95 px-4 py-3 backdrop-blur md:hidden">
+    <a th:href="@{/home}" class="flex items-center gap-2 font-semibold">
+        <span class="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-sm">S</span>
+        SiMu
+    </a>
+    <div class="flex items-center gap-3 text-sm text-muted">
+        <a th:href="@{/home}" class="hover:text-white">Библиотека</a>
+        <a th:href="@{/playlists}" class="hover:text-white">Плейлисты</a>
+        <a th:href="@{/profile}" class="hover:text-white">Профиль</a>
+    </div>
+</nav>
+
+<!-- Flash messages -->
+<div th:fragment="flash" class="mb-6 space-y-2">
+    <div th:if="${success}"
+         class="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300"
+         th:text="${success}"></div>
+    <div th:if="${error}"
+         class="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-300"
+         th:text="${error}"></div>
+</div>
+
+<!-- Bottom player -->
+<div th:fragment="player" class="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-panel/95 backdrop-blur">
+    <div class="mx-auto flex max-w-5xl items-center gap-4 px-4 py-3">
+        <div class="min-w-0 flex-1">
+            <p id="player-title" class="truncate text-sm font-medium text-gray-200">Ничего не играет</p>
+            <p id="player-subtitle" class="truncate text-xs text-muted">Выберите трек в библиотеке</p>
+        </div>
+        <audio id="player" class="w-full max-w-md" controls preload="none"></audio>
+    </div>
+</div>
+
+</body>
+</html>

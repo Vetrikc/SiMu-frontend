@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Профиль')}"></head>
+<body class="bg-ink text-gray-100">
+<div class="flex min-h-screen">
+    <aside th:replace="~{fragments/layout :: sidebar('profile')}"></aside>
+
+    <div class="flex min-w-0 flex-1 flex-col">
+        <nav th:replace="~{fragments/layout :: mobileNav}"></nav>
+
+        <main class="flex-1 px-4 py-6 pb-32 md:px-10 md:py-8">
+            <div th:replace="~{fragments/layout :: flash}"></div>
+
+            <h1 class="text-2xl font-semibold md:text-3xl">Профиль</h1>
+            <p class="mt-1 text-sm text-muted">Данные аккаунта из auth-service.</p>
+
+            <section class="mt-6 grid gap-4 lg:grid-cols-3">
+                <div class="rounded-2xl border border-line bg-panel p-6 lg:col-span-2">
+                    <div class="flex items-center gap-4">
+                        <span class="grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-2xl font-semibold"
+                              th:text="${#strings.substring(profile.username, 0, 1).toUpperCase()}">U</span>
+                        <div class="min-w-0">
+                            <p class="truncate text-xl font-semibold" th:text="${profile.username}">username</p>
+                            <p class="truncate text-sm text-muted" th:text="${profile.email}">email</p>
+                        </div>
+                    </div>
+
+                    <dl class="mt-6 grid gap-4 sm:grid-cols-2">
+                        <div class="rounded-xl border border-line bg-ink/60 p-4">
+                            <dt class="text-xs uppercase tracking-wider text-muted">Роли</dt>
+                            <dd class="mt-1 flex flex-wrap gap-1.5">
+                                <span th:each="role : ${profile.roles}"
+                                      class="rounded-lg bg-white/10 px-2 py-0.5 text-xs" th:text="${role}">USER</span>
+                            </dd>
+                        </div>
+                        <div class="rounded-xl border border-line bg-ink/60 p-4">
+                            <dt class="text-xs uppercase tracking-wider text-muted">E-mail</dt>
+                            <dd class="mt-1 text-sm">
+                                <span th:if="${profile.emailVerified}" class="text-emerald-300">подтверждён</span>
+                                <span th:unless="${profile.emailVerified}" class="text-amber-300">не подтверждён</span>
+                            </dd>
+                        </div>
+                        <div class="rounded-xl border border-line bg-ink/60 p-4">
+                            <dt class="text-xs uppercase tracking-wider text-muted">Вход по паролю</dt>
+                            <dd class="mt-1 text-sm">
+                                <span th:if="${profile.passwordLoginEnabled}">включён</span>
+                                <span th:unless="${profile.passwordLoginEnabled}">только через Google</span>
+                            </dd>
+                        </div>
+                        <div class="rounded-xl border border-line bg-ink/60 p-4">
+                            <dt class="text-xs uppercase tracking-wider text-muted">Аккаунт создан</dt>
+                            <dd class="mt-1 text-sm" th:text="${createdAt}">—</dd>
+                        </div>
+                    </dl>
+                </div>
+
+                <div class="space-y-4">
+                    <section class="rounded-2xl border border-line bg-panel p-5">
+                        <h2 class="mb-2 text-sm font-medium text-muted">Быстрые ссылки</h2>
+                        <div class="space-y-2 text-sm">
+                            <a th:href="@{/home}" class="block rounded-xl border border-line px-3 py-2 transition hover:bg-white/5">Библиотека</a>
+                            <a th:href="@{/playlists}" class="block rounded-xl border border-line px-3 py-2 transition hover:bg-white/5">Плейлисты</a>
+                            <a th:href="@{/upload}" class="block rounded-xl border border-line px-3 py-2 transition hover:bg-white/5">Загрузить трек</a>
+                        </div>
+                    </section>
+
+                    <section class="rounded-2xl border border-rose-500/30 bg-rose-500/5 p-5">
+                        <h2 class="mb-2 text-sm font-medium text-rose-300">Удаление аккаунта</h2>
+                        <p class="mb-3 text-xs text-muted">
+                            Аккаунт и плейлисты будут скрыты и недоступны для входа. Действие необратимо из интерфейса.
+                        </p>
+                        <form th:action="@{/profile/delete}" method="post"
+                              data-confirm="Удалить аккаунт? Это действие нельзя отменить.">
+                            <button type="submit"
+                                    class="w-full rounded-xl border border-rose-500/40 px-4 py-2.5 text-sm text-rose-300 transition hover:bg-rose-500/10">
+                                Удалить аккаунт
+                            </button>
+                        </form>
+                    </section>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: player}"></div>
+</body>
+</html>
