@@ -1,6 +1,5 @@
 package org.simu.client.api;
 
-import org.simu.client.dto.CreatePlaylistRequest;
 import org.simu.client.dto.PlaylistDto;
 import org.springframework.stereotype.Component;
 
@@ -11,10 +10,6 @@ public class PlaylistApi {
 
     public PlaylistApi(BackendClient backend) {
         this.backend = backend;
-    }
-
-    public PlaylistDto create(String name, String description) {
-        return backend.post("/api/v1/playlists", new CreatePlaylistRequest(name, description), PlaylistDto.class);
     }
 
     public PlaylistDto get(Long id) {
