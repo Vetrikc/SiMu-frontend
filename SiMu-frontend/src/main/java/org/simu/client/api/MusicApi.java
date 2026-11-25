@@ -1,6 +1,7 @@
 package org.simu.client.api;
 
 import org.simu.client.dto.MusicDto;
+import org.simu.client.dto.PageResponse;
 import org.simu.client.dto.MusicUpload;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ByteArrayResource;
@@ -26,8 +27,18 @@ public class MusicApi {
     }
 
     public List<MusicDto> list() {
-        return backend.get("/api/v1/music", new ParameterizedTypeReference<List<MusicDto>>() {
-        });
+        PageResponse<MusicDto> page = backend.get("/api/v1/music?limit=100",
+                new ParameterizedTypeReference<PageResponse<MusicDto>>() {
+                });
+        return page.items();
+    }
+
+    public List<MusicDto> search(String query) {
+        PageResponse<MusicDto> page = backend.get("/api/v1/music/search?limit=50&q="
+                        + java.net.URLEncoder.encode(query, java.nio.charset.StandardCharsets.UTF_8),
+                new ParameterizedTypeReference<PageResponse<MusicDto>>() {
+                });
+        return page.items();
     }
 
     public MusicDto get(Long id) {

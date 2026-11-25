@@ -6,6 +6,7 @@ META-INF\spring-configuration-metadata.json
 org\simu\client\dto\CreatePlaylistRequest.class
 org\simu\client\api\UserApi$1.class
 org\simu\client\api\MusicApi.class
+org\simu\client\dto\PageResponse.class
 org\simu\client\api\MusicApi$2.class
 org\simu\client\api\BackendClient.class
 org\simu\client\web\GlobalControllerAdvice.class
@@ -30,6 +31,7 @@ org\simu\client\api\Messages.class
 org\simu\client\dto\VerifyEmailRequest.class
 org\simu\client\dto\UserInfoResponse.class
 org\simu\client\dto\SignupRequest.class
+org\simu\client\api\MusicApi$3.class
 org\simu\client\dto\ErrorResponse.class
 org\simu\client\dto\SigninResponse.class
 org\simu\client\web\OAuthController.class
